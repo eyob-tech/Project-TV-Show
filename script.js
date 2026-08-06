@@ -1,6 +1,6 @@
 function setup() {
-  const episodes = getAllEpisodes();
-  makePageForEpisodes(episodes);
+  const allepisodes = getAllEpisodes();
+  makePageForEpisodes(allepisodes);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -23,8 +23,14 @@ function makePageForEpisodes(episodeList) {
   });
 
   const credit = document.createElement("p");
-  credit.innerHTML = 'Data originally from <a href="https://www.tvmaze.com/">TVMaze.com</a>';
+  credit.innerHTML =
+    'Data originally from <a href="https://www.tvmaze.com/">TVMaze.com</a>';
   rootElem.appendChild(credit);
 }
 
 window.onload = setup;
+
+// Your code uses innerHTML to create the episode cards, while mine uses createElement() and appends each element separately.
+// I prefer my implementation because it is more structured, easier to modify, and avoids using innerHTML.
+// I like that urs code is shorter and easier to read because it uses template strings with innerHTML.
+// I learned another way to create HTML using innerHTML, and I saw a different approach to solving the same problem.
