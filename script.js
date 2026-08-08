@@ -3,29 +3,33 @@ let allEpisodes = [];
 function setup() {
   allEpisodes = getAllEpisodes();
   makePageForEpisodes(allEpisodes);
+  createEpisodeSelector(allEpisodes);
+
+  const episodeSelect = document.getElementById("episode-select");
+  episodeSelect.addEventListener("change", jumpToEpisode);
 
   const episodeCount = document.getElementById("episode-count");
   episodeCount.textContent = `Displaying ${allEpisodes.length} of ${allEpisodes.length} episodes`;
 
-  function searchEpisodes() {
-    const searchInput = document.getElementById("search");
-    const searchTerm = searchInput.value.toLowerCase();
-
-    const matchingEpisodes = allEpisodes.filter((episode) => {
-      return (
-        episode.name.toLowerCase().includes(searchTerm) ||
-        episode.summary.toLowerCase().includes(searchTerm)
-      );
-    });
-
-    const episodeCount = document.getElementById("episode-count");
-    episodeCount.textContent = `Displaying ${matchingEpisodes.length} of ${allEpisodes.length} episodes`;
-
-    makePageForEpisodes(matchingEpisodes);
-  }
-
   const searchInput = document.getElementById("search");
   searchInput.addEventListener("input", searchEpisodes);
+}
+
+function searchEpisodes() {
+  const searchInput = document.getElementById("search");
+  const searchTerm = searchInput.value.toLowerCase();
+
+  const matchingEpisodes = allEpisodes.filter((episode) => {
+    return (
+      episode.name.toLowerCase().includes(searchTerm) ||
+      episode.summary.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  const episodeCount = document.getElementById("episode-count");
+  episodeCount.textContent = `Displaying ${matchingEpisodes.length} of ${allEpisodes.length} episodes`;
+
+  makePageForEpisodes(matchingEpisodes);
 }
 
 function makePageForEpisodes(episodeList) {
@@ -35,6 +39,7 @@ function makePageForEpisodes(episodeList) {
   episodeList.forEach((episode) => {
     const card = document.createElement("div");
     card.className = "episode-card";
+    card.id = `episode-${episode.id}`;
 
     const code = `S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}`;
 
@@ -53,8 +58,39 @@ function makePageForEpisodes(episodeList) {
   rootElem.appendChild(credit);
 }
 
-window.onload = setup;
+function createEpisodeSelector(episodeList) {
+  const select = document.getElementById("episode-select");
 
+  episodeList.forEach((episode) => {
+    const option = document.createElement("option");
+
+    const code = `S${String(episode.season).padStart(2, "0")}E${String(
+      episode.number,
+    ).padStart(2, "0")}`;
+
+    option.value = episode.id;
+    option.textContent = `${code} - ${episode.name}`;
+
+    select.appendChild(option);
+  });
+}
+
+function jumpToEpisode() {
+  const select = document.getElementById("episode-select");
+  const episodeId = select.value;
+
+  if (episodeId === "") {
+    return;
+  }
+
+  const episodeCard = document.getElementById(`episode-${episodeId}`);
+
+  episodeCard.scrollIntoView({
+    behavior: "smooth",
+  });
+}
+window.onload = setup;
+// Comments in your first implementation.
 // Your code uses innerHTML to create the episode cards, while mine uses createElement() and appends each element separately.
 // I prefer my implementation because it is more structured, easier to modify, and avoids using innerHTML.
 // I like that urs code is shorter and easier to read because it uses template strings with innerHTML.
