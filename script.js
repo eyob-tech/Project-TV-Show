@@ -1,14 +1,28 @@
 //You can edit ALL of the code here
 function setup() {
   showLoadingMessage();
-  makePageForEpisodes(getAllEpisodes());
-  setupSearch(getAllEpisodes());
-  setupEpisodeSelector(getAllEpisodes());
+
+  fetch("https://api.tvmaze.com/shows/82/episodes")
+    .then((response) => response.json())
+    .then((episodes) => {
+      makePageForEpisodes(episodes);
+      setupSearch(episodes);
+      setupEpisodeSelector(episodes);
+    })
+    .catch(() => {
+      showErrorMessage();
+    });
 }
 
 function showLoadingMessage() {
   const rootElem = document.getElementById("root");
   rootElem.textContent = "Loading episodes, please wait...";
+}
+
+function showErrorMessage() {
+  const rootElem = document.getElementById("root");
+  rootElem.textContent =
+    "Something went wrong loading episodes. Please try again later.";
 }
 
 function makePageForEpisodes(episodeList) {
@@ -94,5 +108,4 @@ function setupEpisodeSelector(allEpisodes) {
 }
 
 window.onload = setup;
-
 
