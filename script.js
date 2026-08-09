@@ -1,97 +1,98 @@
-let allEpisodes = [];
-
+//You can edit ALL of the code here
 function setup() {
-  allEpisodes = getAllEpisodes();
-  makePageForEpisodes(allEpisodes);
-  createEpisodeSelector(allEpisodes);
-
-  const episodeSelect = document.getElementById("episode-select");
-  episodeSelect.addEventListener("change", jumpToEpisode);
-
-  const episodeCount = document.getElementById("episode-count");
-  episodeCount.textContent = `Displaying ${allEpisodes.length} of ${allEpisodes.length} episodes`;
-
-  const searchInput = document.getElementById("search");
-  searchInput.addEventListener("input", searchEpisodes);
+  showLoadingMessage();
+  makePageForEpisodes(getAllEpisodes());
+  setupSearch(getAllEpisodes());
+  setupEpisodeSelector(getAllEpisodes());
 }
 
-function searchEpisodes() {
-  const searchInput = document.getElementById("search");
-  const searchTerm = searchInput.value.toLowerCase();
-
-  const matchingEpisodes = allEpisodes.filter((episode) => {
-    return (
-      episode.name.toLowerCase().includes(searchTerm) ||
-      episode.summary.toLowerCase().includes(searchTerm)
-    );
-  });
-
-  const episodeCount = document.getElementById("episode-count");
-  episodeCount.textContent = `Displaying ${matchingEpisodes.length} of ${allEpisodes.length} episodes`;
-
-  makePageForEpisodes(matchingEpisodes);
+function showLoadingMessage() {
+  const rootElem = document.getElementById("root");
+  rootElem.textContent = "Loading episodes, please wait...";
 }
 
 function makePageForEpisodes(episodeList) {
   const rootElem = document.getElementById("root");
   rootElem.innerHTML = "";
 
-  episodeList.forEach((episode) => {
-    const card = document.createElement("div");
-    card.className = "episode-card";
-    card.id = `episode-${episode.id}`;
-
-    const code = `S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}`;
-
-    card.innerHTML = `
-      <h2>${episode.name} - ${code}</h2>
-      <img src="${episode.image.medium}" alt="${episode.name}" />
-      <p>${episode.summary}</p>
-    `;
-
-    rootElem.appendChild(card);
-  });
-
-  const credit = document.createElement("p");
-  credit.innerHTML =
-    'Data originally from <a href="https://www.tvmaze.com/">TVMaze.com</a>';
-  rootElem.appendChild(credit);
-}
-
-function createEpisodeSelector(episodeList) {
-  const select = document.getElementById("episode-select");
-
-  episodeList.forEach((episode) => {
-    const option = document.createElement("option");
-
-    const code = `S${String(episode.season).padStart(2, "0")}E${String(
-      episode.number,
-    ).padStart(2, "0")}`;
-
-    option.value = episode.id;
-    option.textContent = `${code} - ${episode.name}`;
-
-    select.appendChild(option);
-  });
-}
-
-function jumpToEpisode() {
-  const select = document.getElementById("episode-select");
-  const episodeId = select.value;
-
-  if (episodeId === "") {
-    return;
+  for (const episode of episodeList) {
+    rootElem.append(makeEpisodeCard(episode));
   }
 
-  const episodeCard = document.getElementById(`episode-${episodeId}`);
+  rootElem.append(makeCredit());
+}
 
-  episodeCard.scrollIntoView({
-    behavior: "smooth",
+function makeEpisodeCard(episode) {
+  const card = document.createElement("section");
+  card.id = `episode-${episode.id}`;
+
+  const title = document.createElement("h2");
+  title.textContent = episode.name;
+
+  const code = document.createElement("p");
+  code.textContent = formatEpisodeCode(episode);
+
+  const image = document.createElement("img");
+  image.src = episode.image.medium;
+  image.alt = episode.name;
+
+  const summary = document.createElement("div");
+  summary.innerHTML = episode.summary;
+
+  card.append(title, code, image, summary);
+  return card;
+}
+
+function formatEpisodeCode(episode) {
+  return `S${String(episode.season).padStart(2, "0")}E${String(
+    episode.number,
+  ).padStart(2, "0")}`;
+}
+
+function makeCredit() {
+  const credit = document.createElement("p");
+  credit.innerHTML =
+    'Data originally from <a href="https://www.tvmaze.com" target="_blank">TVMaze.com</a>';
+  return credit;
+}
+
+function setupSearch(allEpisodes) {
+  const searchInput = document.getElementById("search-input");
+  const countDisplay = document.getElementById("search-count");
+
+  searchInput.addEventListener("input", () => {
+    const term = searchInput.value.toLowerCase();
+
+    const matches = allEpisodes.filter((episode) => {
+      return (
+        episode.name.toLowerCase().includes(term) ||
+        episode.summary.toLowerCase().includes(term)
+      );
+    });
+
+    makePageForEpisodes(matches);
+    countDisplay.textContent = `${matches.length} / ${allEpisodes.length} episodes`;
   });
 }
+
+function setupEpisodeSelector(allEpisodes) {
+  const selectElem = document.getElementById("episode-select");
+
+  allEpisodes.forEach((episode) => {
+    const option = document.createElement("option");
+    option.value = episode.id;
+    option.textContent = `${formatEpisodeCode(episode)} - ${episode.name}`;
+    selectElem.append(option);
+  });
+
+  selectElem.addEventListener("change", () => {
+    const target = document.getElementById(`episode-${selectElem.value}`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+}
+
 window.onload = setup;
-// Comments in your first implementation.
-// Your code uses innerHTML to create the episode cards, while mine uses createElement() and appends each element separately.
-// I prefer my implementation because it is more structured, easier to modify, and avoids using innerHTML.
-// I like that urs code is shorter and easier to read because it uses template strings with innerHTML.
-// I learned another way to create HTML using innerHTML, and I saw a different approach to solving the same problem.
+
+
