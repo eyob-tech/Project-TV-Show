@@ -1,16 +1,37 @@
 //You can edit ALL of the code here
+function fetchShows() {
+  return fetch("https://api.tvmaze.com/shows").then((response) =>
+    response.json(),
+  );
+}
+
 function setup() {
   showLoadingMessage();
 
-  fetchEpisodes(82)
-    .then((episodes) => {
-      makePageForEpisodes(episodes);
-      setupSearch(episodes);
-      setupEpisodeSelector(episodes);
+  fetchShows()
+    .then((shows) => {
+      setupShowSelector(shows);
+      document.getElementById("root").textContent =
+        "Choose a TV show from the list.";
     })
     .catch(() => {
       showErrorMessage();
     });
+}
+
+function setupShowSelector(shows) {
+  const showSelect = document.getElementById("show-select");
+
+  shows.sort((a, b) => {
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+
+  shows.forEach((show) => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent = show.name;
+    showSelect.append(option);
+  });
 }
 
 function fetchEpisodes(showId) {
