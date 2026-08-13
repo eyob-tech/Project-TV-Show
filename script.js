@@ -2,8 +2,7 @@
 function setup() {
   showLoadingMessage();
 
-  fetch("https://api.tvmaze.com/shows/82/episodes")
-    .then((response) => response.json())
+  fetchEpisodes(82)
     .then((episodes) => {
       makePageForEpisodes(episodes);
       setupSearch(episodes);
@@ -12,6 +11,12 @@ function setup() {
     .catch(() => {
       showErrorMessage();
     });
+}
+
+function fetchEpisodes(showId) {
+  return fetch(`https://api.tvmaze.com/shows/${showId}/episodes`).then(
+    (response) => response.json(),
+  );
 }
 
 function showLoadingMessage() {
@@ -108,4 +113,3 @@ function setupEpisodeSelector(allEpisodes) {
 }
 
 window.onload = setup;
-
