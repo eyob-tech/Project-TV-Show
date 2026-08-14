@@ -1,4 +1,5 @@
 //You can edit ALL of the code here
+const episodeCache = {};
 function fetchShows() {
   return fetch("https://api.tvmaze.com/shows").then((response) =>
     response.json(),
@@ -32,12 +33,39 @@ function setupShowSelector(shows) {
     option.textContent = show.name;
     showSelect.append(option);
   });
+
+  showSelect.addEventListener("change", () => {
+    const showId = showSelect.value;
+
+    if (showId === "") {
+      return;
+    }
+
+    showLoadingMessage();
+
+    fetchEpisodes(showId)
+      .then((episodes) => {
+        makePageForEpisodes(episodes);
+        setupSearch(episodes);
+        setupEpisodeSelector(episodes);
+      })
+      .catch(() => {
+        showErrorMessage();
+      });
+  });
 }
 
 function fetchEpisodes(showId) {
-  return fetch(`https://api.tvmaze.com/shows/${showId}/episodes`).then(
-    (response) => response.json(),
-  );
+  if (episodeCache[showId]) {
+    return Promise.resolve(episodeCache[showId]);
+  }
+
+  return fetch(`https://api.tvmaze.com/shows/${showId}/episodes`)
+    .then((response) => response.json())
+    .then((episodes) => {
+      episodeCache[showId] = episodes;
+      return episodes;
+    });
 }
 
 function showLoadingMessage() {
@@ -118,17 +146,25 @@ function setupSearch(allEpisodes) {
 function setupEpisodeSelector(allEpisodes) {
   const selectElem = document.getElementById("episode-select");
 
+  // Clear episodes from the previous show
+  selectElem.innerHTML = '<option value="">Jump to episode...</option>';
+
   allEpisodes.forEach((episode) => {
     const option = document.createElement("option");
+
     option.value = episode.id;
     option.textContent = `${formatEpisodeCode(episode)} - ${episode.name}`;
+
     selectElem.append(option);
   });
 
   selectElem.addEventListener("change", () => {
     const target = document.getElementById(`episode-${selectElem.value}`);
+
     if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
+      target.scrollIntoView({
+        behavior: "smooth",
+      });
     }
   });
 }
