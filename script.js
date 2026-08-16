@@ -1,16 +1,70 @@
 //You can edit ALL of the code here
+const episodeCache = {};
+function fetchShows() {
+  return fetch("https://api.tvmaze.com/shows").then((response) =>
+    response.json(),
+  );
+}
+
 function setup() {
   showLoadingMessage();
 
-  fetch("https://api.tvmaze.com/shows/82/episodes")
-    .then((response) => response.json())
-    .then((episodes) => {
-      makePageForEpisodes(episodes);
-      setupSearch(episodes);
-      setupEpisodeSelector(episodes);
+  fetchShows()
+    .then((shows) => {
+      setupShowSelector(shows);
+      document.getElementById("root").textContent =
+        "Choose a TV show from the list.";
     })
     .catch(() => {
       showErrorMessage();
+    });
+}
+
+function setupShowSelector(shows) {
+  const showSelect = document.getElementById("show-select");
+
+  shows.sort((a, b) => {
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+
+  shows.forEach((show) => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent = show.name;
+    showSelect.append(option);
+  });
+
+  showSelect.addEventListener("change", () => {
+    const showId = showSelect.value;
+
+    if (showId === "") {
+      return;
+    }
+
+    showLoadingMessage();
+
+    fetchEpisodes(showId)
+      .then((episodes) => {
+        makePageForEpisodes(episodes);
+        setupSearch(episodes);
+        setupEpisodeSelector(episodes);
+      })
+      .catch(() => {
+        showErrorMessage();
+      });
+  });
+}
+
+function fetchEpisodes(showId) {
+  if (episodeCache[showId]) {
+    return Promise.resolve(episodeCache[showId]);
+  }
+
+  return fetch(`https://api.tvmaze.com/shows/${showId}/episodes`)
+    .then((response) => response.json())
+    .then((episodes) => {
+      episodeCache[showId] = episodes;
+      return episodes;
     });
 }
 
@@ -92,20 +146,27 @@ function setupSearch(allEpisodes) {
 function setupEpisodeSelector(allEpisodes) {
   const selectElem = document.getElementById("episode-select");
 
+  // Clear episodes from the previous show
+  selectElem.innerHTML = '<option value="">Jump to episode...</option>';
+
   allEpisodes.forEach((episode) => {
     const option = document.createElement("option");
+
     option.value = episode.id;
     option.textContent = `${formatEpisodeCode(episode)} - ${episode.name}`;
+
     selectElem.append(option);
   });
 
   selectElem.addEventListener("change", () => {
     const target = document.getElementById(`episode-${selectElem.value}`);
+
     if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
+      target.scrollIntoView({
+        behavior: "smooth",
+      });
     }
   });
 }
 
 window.onload = setup;
-
