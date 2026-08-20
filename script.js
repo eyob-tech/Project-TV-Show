@@ -13,6 +13,7 @@ function setup() {
       );
       renderShowsListing(allShows);
       setupShowSearch();
+      setupShowSelectDropdown();
       setupBackButton();
       setupEpisodeSearchListener();
       setupEpisodeSelectorListener();
@@ -116,6 +117,29 @@ function setupShowSearch() {
     });
 
     renderShowsListing(matches);
+  });
+}
+
+// Level 400's dropdown, kept alongside the Level 500 listing so users
+// can either browse/search the full listing OR jump straight to a show.
+function setupShowSelectDropdown() {
+  const showSelectElem = document.getElementById("show-select");
+
+  allShows.forEach((show) => {
+    const option = document.createElement("option");
+    option.value = show.id;
+    option.textContent = show.name;
+    showSelectElem.append(option);
+  });
+
+  showSelectElem.addEventListener("change", () => {
+    const showId = showSelectElem.value;
+
+    if (showId === "") {
+      return;
+    }
+
+    selectShow(showId);
   });
 }
 
@@ -264,4 +288,3 @@ function populateEpisodeSelector(episodeList) {
 }
 
 window.onload = setup;
-
