@@ -7,24 +7,31 @@
     <link href="style.css" rel="stylesheet" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
-
   <body>
-    <input type="text" id="search-input" placeholder="Search episodes..." />
-    <p id="search-count"></p>
+    <!-- Shows listing view -->
+    <div id="shows-view">
+      <input
+        type="text"
+        id="show-search"
+        placeholder="Search shows by name, genre, or summary..."
+      />
+      <p id="show-search-count"></p>
+      <div id="shows-list"></div>
+    </div>
 
-    <label for="show-select">Choose a TV show:</label>
-
-    <select id="show-select">
-      <option value="">Choose a show...</option>
-    </select>
-
-    <select id="episode-select">
-      <option value="">Jump to episode...</option>
-    </select>
-
-    <div id="root"></div>
+    <!-- Episodes view (hidden until a show is selected) -->
+    <div id="episodes-view" style="display: none;">
+      <button id="back-to-shows">&larr; Back to shows</button>
+      <input type="text" id="search-input" placeholder="Search episodes..." />
+      <p id="search-count"></p>
+      <select id="episode-select">
+        <option value="">Jump to episode...</option>
+      </select>
+      <div id="root"></div>
+    </div>
 
     <!-- Loads YOUR javascript code -->
     <script src="script.js"></script>
   </body>
 </html>
+
